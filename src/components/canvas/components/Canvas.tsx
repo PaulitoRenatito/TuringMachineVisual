@@ -31,11 +31,11 @@ export function Canvas({ states, highlightState = null, highlightTransition = nu
       console.error('O array de estados está vazio.');
       return;
     }
-  
+
     const canvasCenter = new Vector2DClass(1146 / 2, 600 / 2);
     const newStates = generateStateClassArray(states, canvasCenter);
     const newTransitions = generateTransitionClassArray(states, newStates);
-  
+
     setStatesCanvas(newStates);
     setTransitionsCanvas(newTransitions);
   }, [states]);
@@ -96,7 +96,7 @@ export function Canvas({ states, highlightState = null, highlightTransition = nu
   }, [highlightState]);
 
   useEffect(() => {
-    if (states === null|| highlightTransition === null) return;
+    if (states === null || highlightTransition === null) return;
 
     clearHighlight();
 
@@ -123,14 +123,9 @@ export function Canvas({ states, highlightState = null, highlightTransition = nu
   const handleStateDragMove = (e: any, index: number) => {
 
     const updatedStates = [...statesCanvas];
-    const draggedState = updatedStates[index];
     const { x, y } = e.target.position();
 
-    updatedStates[index] = new StateClass(
-      draggedState.name,
-      draggedState.isEndState,
-      new Vector2DClass(x, y)
-    );
+    updatedStates[index].position = new Vector2DClass(x, y);
 
     setStatesCanvas(updatedStates);
 

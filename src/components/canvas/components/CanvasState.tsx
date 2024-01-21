@@ -1,7 +1,7 @@
 import { Circle, Group, Text } from 'react-konva';
 import { StateClass } from '../classes/StateClass';
 import Konva from 'konva';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 
 interface CanvasStateProps {
     state: StateClass;
@@ -14,8 +14,15 @@ interface CanvasStateProps {
 
 function CanvasState({ state, draggable = false, radius, onClick, onDragMove, dragBoundFunc }: CanvasStateProps) {
 
-    const [hoverColor, setHoverColor] = useState<string>('black');
-    
+    const [color, setColor] =
+        useState<string>(state.isHightlight ? 'red' : 'black');
+
+    useEffect(() => {
+        setColor(state.isHightlight ? 'red' : 'black');
+    }, [
+        state.isHightlight
+    ]);
+
     return (
         <Group
             draggable={draggable}
@@ -24,17 +31,17 @@ function CanvasState({ state, draggable = false, radius, onClick, onDragMove, dr
             onClick={onClick}
             onDragMove={onDragMove}
             dragBoundFunc={dragBoundFunc}
-            onMouseEnter={(_e) => setHoverColor('blue')}
-            onMouseLeave={(_e) => setHoverColor('black')}>
+            onMouseEnter={(_e) => setColor(state.isHightlight ? 'darkred' : 'blue')}
+            onMouseLeave={(_e) => setColor(state.isHightlight ? 'red' : 'black')}>
             <Circle
                 radius={radius}
                 fill="transparent"
-                stroke={state.isHightlight ? 'red' : hoverColor} />
+                stroke={color} />
             {state.isEndState &&
                 <Circle
                     radius={(radius * 0.9)}
                     fill="transparent"
-                    stroke={state.isHightlight ? 'red' : hoverColor}
+                    stroke={color}
                 />
             }
             <Text
@@ -44,7 +51,7 @@ function CanvasState({ state, draggable = false, radius, onClick, onDragMove, dr
                 width={radius * 2}
                 align='center'
                 verticalAlign='middle'
-                fill={state.isHightlight ? 'red' : hoverColor} />
+                fill={color} />
         </Group>
     );
 };

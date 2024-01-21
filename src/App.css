@@ -1,0 +1,30 @@
+#root {
+  max-width: 1280px;
+  margin: 0;
+  text-align: center;
+}
+
+.container-main {
+  width: 100vw;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.container-top-left {
+  width: 60vw;
+  height: 70vh;
+  background-color: rgb(48, 141, 141);
+}
+
+.container-top-right {
+  background-color: rgb(21, 0, 75);
+  width: 40vw;
+  height: 70vh;
+}
+
+.container-bottom {
+  width: 100vw;
+  height: 30vh;
+  background-color:yellow;
+}

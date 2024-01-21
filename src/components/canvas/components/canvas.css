@@ -1,0 +1,6 @@
+.canvas {
+    background-color: rgb(255, 255, 255);
+    background-size: 40px 40px;
+    background-image: radial-gradient(circle, #b3b3b3 1px, rgba(0, 0, 0, 0) 1px);
+    border: 2px solid #ffffff;
+}

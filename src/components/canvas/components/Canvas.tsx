@@ -10,6 +10,7 @@ import { State, Transition } from "../../../interfaces/State";
 import CanvasState from "./CanvasState";
 import CanvasTransition from "./CanvasTransition";
 import { generateStateClassArray, generateTransitionClassArray, getTransitionName } from "../Utils";
+import { IHighlightable } from "../interfaces/IHighlightable";
 
 interface CanvasProps {
   states: State[] | null;
@@ -23,8 +24,7 @@ export function Canvas({ states, highlightState = null, highlightTransition = nu
   const [statesCanvas, setStatesCanvas] = useState<StateClass[]>([]);
   const [transitionsCanvas, setTransitionsCanvas] = useState<TransitionClass[]>([]);
 
-  const [lastHighlightState, setLastHighlightState] = useState<StateClass | null>(null);
-  const [lastHighlightTransition, setLastHighlightTransition] = useState<TransitionClass | null>(null);
+  const [lastHighlightable, setLastHighlightable] = useState<IHighlightable | null>(null);
 
   useEffect(() => {
     if (!states || states.length === 0) {
@@ -69,12 +69,8 @@ export function Canvas({ states, highlightState = null, highlightTransition = nu
   };
 
   const clearHighlight = () => {
-    if (lastHighlightState !== null) {
-      lastHighlightState.isHightlight = false;
-    }
-
-    if (lastHighlightTransition !== null) {
-      lastHighlightTransition.isHightlight = false;
+    if(lastHighlightable !== null) {
+      lastHighlightable.isHightlight = false;
     }
   }
 
@@ -86,7 +82,7 @@ export function Canvas({ states, highlightState = null, highlightTransition = nu
     const newStateHighlight = getHighlightState(statesCanvas, highlightState);
 
     if (newStateHighlight !== null) {
-      setLastHighlightState(newStateHighlight);
+      setLastHighlightable(newStateHighlight);
       setStatesCanvas([...statesCanvas]);
       setTransitionsCanvas([...transitionsCanvas]);
     }
@@ -103,7 +99,7 @@ export function Canvas({ states, highlightState = null, highlightTransition = nu
     const newTransitionHighlight = getHighlightTransition(transitionsCanvas, highlightTransition);
 
     if (newTransitionHighlight !== null) {
-      setLastHighlightTransition(newTransitionHighlight);
+      setLastHighlightable(newTransitionHighlight);
       setStatesCanvas([...statesCanvas]);
       setTransitionsCanvas([...transitionsCanvas]);
     }
@@ -111,14 +107,6 @@ export function Canvas({ states, highlightState = null, highlightTransition = nu
     console.log("state: " + newTransitionHighlight + "\n" + newTransitionHighlight?.isHightlight);
 
   }, [highlightTransition]);
-
-  const handleStateClick = (_state: StateClass, _e: any) => {
-
-  };
-
-  const handleStageClick = (_e: any) => {
-
-  }
 
   const handleStateDragMove = (e: any, index: number) => {
 
@@ -170,8 +158,7 @@ export function Canvas({ states, highlightState = null, highlightTransition = nu
     <Stage
       className="canvas"
       width={1146}
-      height={600}
-      onClick={handleStageClick}>
+      height={600}>
       <Layer>
         {statesCanvas.map((state, index) => (
           <CanvasState
@@ -179,7 +166,6 @@ export function Canvas({ states, highlightState = null, highlightTransition = nu
             state={state}
             draggable={true}
             radius={circleRadius}
-            onClick={(e) => handleStateClick(state, e)}
             onDragMove={(e) => handleStateDragMove(e, index)}
             dragBoundFunc={createDragBoundFunc(index)} />
         ))}

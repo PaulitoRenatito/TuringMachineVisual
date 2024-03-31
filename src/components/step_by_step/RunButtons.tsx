@@ -1,12 +1,12 @@
-import { State, Transition } from "../../interfaces/State";
 import { useEffect, useState } from "react";
 import { executeGetSteps } from "./StepService";
 
 import './run-buttons.css'
+import { StateData, TransitionData } from "../../services/states/state.types";
 
 interface RunButtonsProps {
-    setHighlightState: (states: State | null) => any,
-    setHighlightTransition: (transition: Transition | null) => any
+    setHighlightState: (states: StateData | null) => any,
+    setHighlightTransition: (transition: TransitionData | null) => any
 }
 export function RunButtons({ setHighlightState, setHighlightTransition }: RunButtonsProps) {
 
@@ -50,9 +50,9 @@ export function RunButtons({ setHighlightState, setHighlightTransition }: RunBut
             clearHighlight();
 
             if ('state_name' in result) {
-                setHighlightState(result as State);
+                setHighlightState(result as StateData);
             } else if ('current_state' in result) {
-                setHighlightTransition(result as Transition);
+                setHighlightTransition(result as TransitionData);
             }
         }
     }, [stepIndex]);

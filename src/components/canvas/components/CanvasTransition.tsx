@@ -28,11 +28,11 @@ function CanvasTransition({ transition, radius, offset = 0 }: CanvasTransitionPr
     const startStateOffset = -radius;
 
     const startStatePoint = isLoop ?
-        pointOnCircle(transition.startState.position, radius, angle - 0.8 + (0.1 * offset)) :
-        pointOnCircle(transition.startState.position, radius, angle);
+        pointOnCircle(transition.startState.position, radius, (angle - 0.8) * ((-1) ** offset)) :
+        pointOnCircle(transition.startState.position, radius, angle - (offset * radius/2));
     const endStatePoint = isLoop ?
-        pointOnCircle(transition.endState.position, startStateOffset, angle + 0.8 + (0.1 * offset)) :
-        pointOnCircle(transition.endState.position, startStateOffset, angle);
+        pointOnCircle(transition.endState.position, startStateOffset, (angle + 0.8) * ((-1) ** offset)) :
+        pointOnCircle(transition.endState.position, startStateOffset, angle + (offset * radius/2));
 
     const [startPosition, setStartPosition] = useState<Vector2DClass>(startStatePoint);
 
@@ -42,12 +42,12 @@ function CanvasTransition({ transition, radius, offset = 0 }: CanvasTransitionPr
 
     const midpoint = isLoop ?
         new Vector2DClass(
-            ((startPosition.x + endPosition.x) / 2) + (10 * offset),
-            startPosition.y - loopRadius
+            ((startPosition.x + endPosition.x) / 2),
+            startPosition.y - (loopRadius * ((-1) ** offset))
         ) :
         new Vector2DClass(
-            ((startPosition.x + endPosition.x) / 2) + (3 * offset),
-            ((startPosition.y + endPosition.y) / 2) + (3 * offset)
+            ((startPosition.x + endPosition.x) / 2) + (radius * offset),
+            ((startPosition.y + endPosition.y) / 2) + (radius * offset)
         );
 
     const [arrowMiddle, setArrowMiddle] = useState<Vector2DClass>(midpoint);

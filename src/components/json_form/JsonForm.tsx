@@ -1,18 +1,20 @@
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import './jsonForm.css'
 import { Editor } from '@monaco-editor/react';
 import { MarkerSeverity, editor } from 'monaco-editor';
 import axios from 'axios';
-import { State } from '../../interfaces/State';
+import { StateContext } from '../../services/states/state.context';
 
 interface JsonFormProps {
-    setStates: (states: State[]) => any
+
 }
-export function JsonForm({ setStates }: JsonFormProps) {
+export function JsonForm({ }: JsonFormProps) {
 
     const initialText = 'Write your JSON code here';
     const [text, setText] = useState<string>(initialText);
     const [isValid, setIsValid] = useState<boolean>(false);
+
+    const { submit } = useContext(StateContext)!;
 
     const handleEditorChange = (newText: string = '') => {
         setText(newText);
@@ -34,22 +36,23 @@ export function JsonForm({ setStates }: JsonFormProps) {
         }
 
         try {
-            const response = await axios.post('http://localhost:5000/receive_json', { text });
-            await handleGetStates();
+            submit(text);
+            //const response = await axios.post('http://localhost:5000/receive_json', { text });
+            // await handleGetStates();
         } catch (error) {
             console.error('Erro ao enviar texto:', error);
         }
     };
 
-    const handleGetStates = async () => {
-        try {
-            const statesResponse = await axios.get('http://localhost:5000/get_states');
-            const data: State[] = statesResponse.data.states;
-            setStates(data);
-        } catch (error) {
-            console.error('Erro ao obter estados:', error);
-        }
-    };
+    // const handleGetStates = async () => {
+    //     try {
+    //         const statesResponse = await axios.get('http://localhost:5000/get_states');
+    //         const data: State[] = statesResponse.data.states;
+    //         setStates(data);
+    //     } catch (error) {
+    //         console.error('Erro ao obter estados:', error);
+    //     }
+    // };
 
     return (
         <div className='form-container'>
@@ -73,13 +76,14 @@ export function JsonForm({ setStates }: JsonFormProps) {
                         verticalScrollbarSize: 5
                     },
                     mouseWheelZoom: true,
-                    lineHeight: 18,
+                    lineHeight: 1.4,
                     cursorWidth: 1,
                     wordWrap: 'on',
-                    glyphMargin: false,
-                    folding: false,
-                    lineDecorationsWidth: 4,
-                    matchBrackets: 'near'
+                    glyphMargin: true,
+                    folding: true,
+                    lineDecorationsWidth: 10,
+                    matchBrackets: 'near',
+                    renderLineHighlight: 'gutter',
                 }}
             />
             <div className='btn-container'>

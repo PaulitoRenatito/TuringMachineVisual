@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useContext, useEffect, useState } from "react";
 import { StateClass } from "../classes/StateClass";
 import { TransitionClass } from "../classes/TransitionClass";
 import { Vector2DClass } from "../classes/Vector2DClass";
@@ -6,23 +6,27 @@ import { Layer, Stage } from "react-konva";
 import Konva from 'konva';
 
 import './canvas.css'
-import { State, Transition } from "../../../interfaces/State";
 import CanvasState from "./CanvasState";
 import CanvasTransition from "./CanvasTransition";
-import { generateStateClassArray, generateTransitionClassArray, getTransitionName } from "../Utils";
+import { generateStateClassArray, generateTransitionClassArray, generateTransitionMap, getTransitionName } from "../Utils";
 import { IHighlightable } from "../interfaces/IHighlightable";
+import { StateContext } from "../../../services/states/state.context";
+import { StateData, TransitionData } from "../../../services/states/state.types";
 
 interface CanvasProps {
-  states: State[] | null;
-  highlightState?: State | null;
-  highlightTransition?: Transition | null;
+  highlightState?: StateData | null;
+  highlightTransition?: TransitionData | null;
 }
-export function Canvas({ states, highlightState = null, highlightTransition = null }: CanvasProps) {
+export function Canvas({ highlightState = null, highlightTransition = null }: CanvasProps) {
+
+  const { states } = useContext(StateContext)!;
 
   const circleRadius = 40;
 
   const [statesCanvas, setStatesCanvas] = useState<StateClass[]>([]);
   const [transitionsCanvas, setTransitionsCanvas] = useState<TransitionClass[]>([]);
+
+  const [transitionMap, setTransitionMap] = useState<Map<string, TransitionClass[]>>(new Map());
 
   const [lastHighlightable, setLastHighlightable] = useState<IHighlightable | null>(null);
 
@@ -35,12 +39,14 @@ export function Canvas({ states, highlightState = null, highlightTransition = nu
     const canvasCenter = new Vector2DClass(1146 / 2, 600 / 2);
     const newStates = generateStateClassArray(states, canvasCenter);
     const newTransitions = generateTransitionClassArray(states, newStates);
+    const newTransitionMap = generateTransitionMap(newTransitions);
 
     setStatesCanvas(newStates);
     setTransitionsCanvas(newTransitions);
+    setTransitionMap(newTransitionMap);
   }, [states]);
 
-  const getHighlightState = (canvas: StateClass[], state: State) => {
+  const getHighlightState = (canvas: StateClass[], state: StateData) => {
 
     const stateInCanvas = canvas.find((t) => (t.name === state?.state_name));
 
@@ -51,7 +57,7 @@ export function Canvas({ states, highlightState = null, highlightTransition = nu
     return stateInCanvas;
   };
 
-  const getHighlightTransition = (canvas: TransitionClass[], transition: Transition) => {
+  const getHighlightTransition = (canvas: TransitionClass[], transition: TransitionData) => {
 
     const transitionName = getTransitionName(transition.conditions);
 
@@ -69,7 +75,7 @@ export function Canvas({ states, highlightState = null, highlightTransition = nu
   };
 
   const clearHighlight = () => {
-    if(lastHighlightable !== null) {
+    if (lastHighlightable !== null) {
       lastHighlightable.isHightlight = false;
     }
   }
@@ -87,8 +93,6 @@ export function Canvas({ states, highlightState = null, highlightTransition = nu
       setTransitionsCanvas([...transitionsCanvas]);
     }
 
-    console.log("state: " + newStateHighlight + "\n" + newStateHighlight?.isHightlight);
-
   }, [highlightState]);
 
   useEffect(() => {
@@ -103,8 +107,6 @@ export function Canvas({ states, highlightState = null, highlightTransition = nu
       setStatesCanvas([...statesCanvas]);
       setTransitionsCanvas([...transitionsCanvas]);
     }
-
-    console.log("state: " + newTransitionHighlight + "\n" + newTransitionHighlight?.isHightlight);
 
   }, [highlightTransition]);
 
@@ -169,13 +171,22 @@ export function Canvas({ states, highlightState = null, highlightTransition = nu
             onDragMove={(e) => handleStateDragMove(e, index)}
             dragBoundFunc={createDragBoundFunc(index)} />
         ))}
-        {transitionsCanvas.map((transition, index) => (
-          <CanvasTransition
-            key={`state-${index}`}
-            transition={transition}
-            radius={circleRadius}
-          />
-        ))}
+        {transitionsCanvas.map((transition, index) => {
+
+          const key = `${transition.startState}-${transition.endState}`;
+
+          const groupedTransitions = transitionMap.get(key);
+          const transitionIndexInGroup = groupedTransitions?.indexOf(transition);
+
+          return (
+            <CanvasTransition
+              key={`state-${index}`}
+              transition={transition}
+              radius={circleRadius}
+              offset={transitionIndexInGroup}
+            />
+          );
+        })}
       </Layer>
     </Stage>
   )

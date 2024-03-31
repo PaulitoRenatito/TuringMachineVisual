@@ -1,4 +1,4 @@
-import { Condition, State, Transition } from "../../interfaces/State";
+import { ConditionData, StateData, TransitionData } from "../../services/states/state.types";
 import { StateClass } from "./classes/StateClass";
 import { TransitionClass } from "./classes/TransitionClass";
 import { Vector2DClass } from "./classes/Vector2DClass";
@@ -14,7 +14,7 @@ function pointOnCircle(position: Vector2DClass, radius: number, angle: number): 
     return new Vector2DClass(x, y);
 }
 
-function generateStateClassArray(states: State[], canvasCenter: Vector2DClass): StateClass[] {
+function generateStateClassArray(states: StateData[], canvasCenter: Vector2DClass): StateClass[] {
 
     const angleIncrement = (2 * Math.PI) / states.length;
 
@@ -30,12 +30,12 @@ function generateStateClassArray(states: State[], canvasCenter: Vector2DClass): 
     return stateClassArray;
 }
 
-function generateTransitionClassArray(states: State[], newStates: StateClass[]): TransitionClass[] {
+function generateTransitionClassArray(states: StateData[], newStates: StateClass[]): TransitionClass[] {
     return states.flatMap((state) => state.transitions.map((transition) => createTransition(transition, state, newStates)))
         .filter((transition) => transition !== null) as TransitionClass[];
 }
 
-function createTransition(transition: Transition, state: State, newStates: StateClass[]): TransitionClass | null {
+function createTransition(transition: TransitionData, state: StateData, newStates: StateClass[]): TransitionClass | null {
     const transitionName = getTransitionName(transition.conditions);
     const current_state = findStateByName(transition.current_state, newStates);
     const next_state = findStateByName(transition.next_state, newStates);
@@ -48,7 +48,7 @@ function createTransition(transition: Transition, state: State, newStates: State
     }
 }
 
-function getTransitionName(conditions: Condition[]): string {
+function getTransitionName(conditions: ConditionData[]): string {
     return conditions.map(
         (condition) =>
             `${condition.read_symbol} --> ${condition.write_symbol}, ${condition.move_direction_symbol}\n`)
@@ -64,10 +64,27 @@ function handleInvalidTransition(stateName: string): void {
     // Handle invalid transition logic here, if needed
 }
 
+function generateTransitionMap(transitions: TransitionClass[]): Map<string, TransitionClass[]> {
+    const transitionMap = new Map<string, TransitionClass[]>();
+
+    transitions.forEach((transition) => {
+        const key = `${transition.startState}-${transition.endState}`;
+
+        if(!transitionMap.has(key)) {
+            transitionMap.set(key, []);
+        }
+
+        transitionMap.get(key)?.push(transition);
+    });
+
+    return transitionMap;
+}
+
 export {
     calculateAngle,
     pointOnCircle,
     generateStateClassArray,
     getTransitionName,
-    generateTransitionClassArray
+    generateTransitionClassArray,
+    generateTransitionMap
 }
